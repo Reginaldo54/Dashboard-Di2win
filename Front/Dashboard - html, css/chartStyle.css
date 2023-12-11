@@ -9,7 +9,6 @@ canvas
 
 .chartContainer
 {
-   
     height: 90vh;
     width:80vw;
 }
@@ -33,6 +32,7 @@ select{
     border-radius: 2.5px;
     padding: 0.2rem 1rem;
     transition: 0.3s;
+    text-align: center;
 }
 
 select:hover
