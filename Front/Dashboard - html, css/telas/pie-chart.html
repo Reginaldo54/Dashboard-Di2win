@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Pizza</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front - Dashboard</title>    
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link href="../chartStyle.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  </head>
+<body>
+    <div class="container">
+        <aside>
+
+            <div class="top">
+                <div class="logo">
+                    <img  src="" alt="">
+                  <h1>Di2win</h1>
+                </div>
+                <br>
+                <div class="close" id="close-btn">
+                    <span class="material-icons-sharp">close</span>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+
+                <a href="./bar-chart.html" >
+                    <span class="material-icons-sharp">bar_chart</span>
+                    <h3>Grafíco de barra</h3>
+                </a>
+
+                <a href="./pie-chart.html" class="active">
+                    <span class="material-icons-sharp">pie_chart</span>
+                    <h3>Gráfico de Pizza</h3>
+                </a>
+
+                <a href="">
+                </a>
+
+            </div>
+            
+        </aside>
+
+  <main>
+    <h1 class="title">Gráfico de Pizza</h1>
+    <div class="dashboard">
+
+        <!--Pie Chart-->
+     
+        <canvas id="myPieChart" ></canvas>
+     
+
+    </div>
+  </main>
+  
+  <script src="../scripts/getFromApi.js"></script>
+  <script>
+
+    let data = [];
+    GetUserData();
+
+
+
+    async function GetUserData()
+    {
+        try
+        {    
+            data = await GetAllUsers();
+            console.log(data);
+      
+            let aggregatedData = {};
+
+            data.forEach(item => {
+              if (aggregatedData[item.segment]) {
+                aggregatedData[item.segment].count++;
+                aggregatedData[item.segment].users.push(`${item.name} (ID: ${item.id})`);
+              } else {
+                aggregatedData[item.segment] = {
+                  count: 1,
+                  users: [`${item.name} (ID: ${item.id})`],
+                };
+              }
+            });
+
+            let labels = Object.keys(aggregatedData);
+            let values = labels.map(segment => aggregatedData[segment].count);
+
+
+
+            const ctx = document.getElementById('myPieChart').getContext('2d');
+            let myPieChart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: "N° de users",
+                  data: values,
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                  ],
+                }],
+              },
+              options: { 
+
+                animation : {
+                duration : 1250,
+                easing : 'easeOutBounce'	
+                },
+
+                tooltips: {
+                  callbacks: {
+                    label: function (tooltipItem, data) {
+                      const segmentLabel = data.labels[tooltipItem.index];
+                      const { count, users } = aggregatedData[segmentLabel];
+                      return `${segmentLabel}: ${count} usuários\n${users.join('\n')}`;
+                    }
+                  }
+                },
+                onClick: function (event, elements) {
+                  if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const segmentLabel = labels[index];
+                    const { users } = aggregatedData[segmentLabel];
+                    alert(`Usuários em ${segmentLabel}:\n${users.join('\n')}`);
+                  }
+                }
+              }
+              
+            });
+
+          }
+        catch(error)
+        {
+            console.error('Erro ao obter dados de users: ', error); 
+        }
+    }
+
+
+  </script>
+
+ 
+
+</body>
+</html>

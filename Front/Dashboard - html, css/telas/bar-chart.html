@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Barras</title>
+  <link href="../chartStyle.css" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  
+  
+  <div class="container">
+    
+    <aside>
+
+        <div class="top">
+            <div class="logo">
+                <img src="./images/logo.png" alt="">
+                <h1>Di2win</h1>
+            </div>
+            <div class="close" id="close-btn">
+                <span class="material-icons-sharp">close</span>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+
+            <a href="./bar-chart.html" class="active">
+                <span class="material-icons-sharp">bar_chart</span>
+                <h3>Grafíco de barra</h3>
+            </a>
+
+            <a href="./pie-chart.html" >
+                <span class="material-icons-sharp">pie_chart</span>
+                <h3>Gráfico de Pizza</h3>
+            </a>
+
+            <a href="">
+            </a>
+
+        </div>
+        
+    </aside>
+   
+    <main>
+      <h1 class="title">Gráfico de Barra</h1>
+    <div class="dashboard">
+       <div class="chartContainer">
+
+        <div class="filterContainer">
+
+          <div class="filter">
+            <label for="userId">Filtrar usuário</label> 
+            <select id="userId">
+              <option value="">Todos os usuários</option>
+              <option value="1">Rômulo</option>
+              <option value="2">Madeira</option>
+              <option value="3">Caio</option>
+              <option value="4">Augusto</option>
+              <option value="5">Inoa</option>
+            </select>
+          </div>
+        
+          <div class="filter">
+            <label for="month">Filtrar mês</label> 
+            <select id="month">
+              <option value="">Todos os meses</option>
+              <option value="1">Janeiro</option>
+              <option value="2">Fevereiro</option>
+              <option value="3">Março</option>
+              <option value="4">Abril</option>
+              <option value="5">Maio</option>
+              <option value="6">Junho</option>
+              <option value="7">Julho</option>
+              <option value="8">Agosto</option>
+              <option value="9">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+          </div>
+        
+      
+          <div class="filter">
+            <label for="docType">Filtrar documento</label>
+            <select id="docType">
+              <option value="">Todos os tipos de documento</option>
+              <option value="FATURAMENTO">Faturamento</option>
+              <option value="CNH">CNH</option>
+              <option value="POSICAO_CONSOLIDADA">Posição Consolidada</option>
+              <option value="FATURA_ENERGIA">Fatura de Energia</option>
+              <option value="CONTRATO_SOCIAL">Contrato Social</option>
+              <option value="DECLARACAO_IR">Declaração de IR</option>
+              <option value="CAPA_SERASA">Capa Serasa</option>
+              <option value="ENDIVIDAMENTO">Endividamento</option>
+              <option value="COMPROVANTE_RESIDENCIA">Comprovante de Residência</option>
+              <option value="BALANCO_PATRIMONIAL">Balanço Patrimonial</option>
+              <option value="RECIBOS">Recibos</option>
+            </select>
+          </div>
+          
+        </div>
+
+        <canvas id="myBarChart"></canvas>
+      </div>
+    </div>  
+     
+    </main>
+  </div>
+  <script src="../scripts/getFromApi.js"></script>
+  <script>
+    
+    GetExtractData();
+    //let interval = setInterval(GetExtractData, 5000);
+
+    async function GetExtractData()
+    {
+        try
+        {    
+            const dataFromDB = await GetAllExtracts();
+            console.log(dataFromDB);
+            
+
+    // Inicialização do gráfico
+    const ctx = document.getElementById('myBarChart').getContext('2d');
+    let myBarChart;
+
+    // Função para atualizar o gráfico com filtros
+    function updateChart() 
+    {
+      const userId = document.getElementById('userId').value;
+      const month = document.getElementById('month').value;
+      const docType = document.getElementById('docType').value;
+
+      // Filtrar os dados com base nos parâmetros fornecidos
+      const filteredData = dataFromDB.filter(item => {
+        return (!userId || item.user_id === Number(userId)) &&
+               (!month || new Date(item.created_at).getMonth() + 1 === Number(month)) &&
+               (!docType || item.doc_type === docType);
+      });
+
+      // Agrupar dados por tipo de documento
+      const dataByDocType = {};
+      filteredData.forEach(item => {
+        dataByDocType[item.doc_type] = dataByDocType[item.doc_type] || 0;
+        dataByDocType[item.doc_type] += item.pages_process;
+      });
+
+      // Criar labels e datasets para o gráfico
+      const labels = Object.keys(dataByDocType);
+      const dataValues = labels.map(docType => dataByDocType[docType]);
+
+      // Atualizar ou criar o gráfico
+      if (myBarChart) {
+        myBarChart.data.labels = labels;
+        myBarChart.data.datasets[0].data = dataValues;
+        myBarChart.update();
+      } else {
+        myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Quantidade de movimentação dos docs',
+              data: dataValues,
+              backgroundColor:
+               'rgba(75, 192, 192, 0.9)',
+            }],
+          },
+          options : {
+            animation : {
+              duration : 1250,
+              easing : 'easeOutBounce'	
+            },
+            layout : {
+              padding : {
+              left: 20,	
+              right: 20,
+              top: 20,
+              bottom: 20}
+            },
+            plugins : {
+              labels : {
+                fontSize: 200
+              }
+            }
+          },            
+        });
+
+      }
+    }
+
+    // Adicionar um event listener para os selects
+    document.getElementById('userId').addEventListener('change', updateChart);
+    document.getElementById('month').addEventListener('change', updateChart);
+    document.getElementById('docType').addEventListener('change', updateChart);
+
+    // Exemplo de uso inicial sem filtros
+    updateChart();
+    }
+      catch(error)
+      {
+          console.error('Erro ao obter dados de extracts: ', error); 
+      }
+  }
+  </script>
+</body>
+</html>
