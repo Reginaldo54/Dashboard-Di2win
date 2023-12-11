@@ -68,3 +68,27 @@ select:hover
     margin-bottom: 20px;
 }
 
+
+@media screen and (max-width: 800px) {
+    .logo 
+    {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    select
+    {
+        text-align: center;
+       
+    }
+
+    .filterContainer
+    {
+       display: inline;
+    }
+
+    .filter
+    {        
+        margin-bottom: 10px;
+    }
+  }

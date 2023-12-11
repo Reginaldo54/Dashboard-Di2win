@@ -114,10 +114,9 @@
   <script src="../scripts/getFromApi.js"></script>
   <script>
     
-    GetExtractData();
-    //let interval = setInterval(GetExtractData, 5000);
+    GetExtractChart();
 
-    async function GetExtractData()
+    async function GetExtractChart()
     {
         try
         {    
@@ -185,7 +184,7 @@
             },
             plugins : {
               labels : {
-                fontSize: 200
+                fontSize: 20
               }
             }
           },            
